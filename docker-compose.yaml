@@ -1,6 +1,13 @@
-version: "2"
 services:
   node-marantz:
+    container_name: marantz
     build: .
+    networks:
+      vlan:
+        ipv4_address: 192.168.2.15
     environment:
       - MARANTZ_HOST=192.168.1.52
+
+networks:
+  vlan:
+    external: true
