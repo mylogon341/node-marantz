@@ -19,37 +19,38 @@ var state = {
     }
 };
 
-connection.on('close', function() {
+connection.on('close', function () {
     console.log('connection closed');
     process.exit();
 });
 
-connection.on('error', function(error) {
+connection.on('error', function (error) {
     console.log('connection error ' + error);
 });
 
-connection.on('data', function(data) {
+connection.on('data', function (data) {
     data = data.toString().trim();
+
     switch (data) {
         case 'SISAT/CBL':
-            myEmitter.emit('source', 'AppleTV', 'main');
-            state.main.source = 'AppleTV';
-            console.log('Main Source: AppleTV');
+            myEmitter.emit('source', 'PS4', 'main');
+            state.main.source = 'PS4';
+            console.log('Main Source: PS4');
             return;
-        case 'SIDVD':
-            myEmitter.emit('source', 'Mac Mini', 'main');
-            state.main.source = 'Mac Mini';
-            console.log('Main Source: Mac Mini');
+        case 'SIGAME':
+            myEmitter.emit('source', 'Apple TV', 'main');
+            state.main.source = 'Apple TV';
+            console.log('Main Source: Apple TV');
             return;
         case 'SIBD':
-            myEmitter.emit('source', 'KVM Switch', 'main');
-            state.main.source = 'KVM Switch';
-            console.log('Main Source: KVM Switch');
+            myEmitter.emit('source', 'Switch', 'main');
+            state.main.source = 'Switch';
+            console.log('Main Source: Switch');
             return;
         case 'Z2SAT/CBL':
-            myEmitter.emit('source', 'AppleTV', 'aux');
-            state.aux.source = 'AppleTV';
-            console.log('Aux Source: AppleTV');
+            myEmitter.emit('source', 'PS4', 'aux');
+            state.aux.source = 'PS4';
+            console.log('Aux Source: PS4');
             return;
         case 'Z2DVD':
             myEmitter.emit('source', 'Mac Mini', 'aux');
@@ -104,7 +105,7 @@ connection.on('data', function(data) {
     }
     if (data.indexOf('MV') == 0) {
         var main_vol = getVolume(data);
-        if  (main_vol !== false) {
+        if (main_vol !== false) {
             myEmitter.emit('volume', main_vol, 'main');
             state.main.mainLevel = main_vol;
             console.log('Main Volume: ' + main_vol);
@@ -113,19 +114,19 @@ connection.on('data', function(data) {
     }
     if (data.indexOf('Z2') == 0) {
         var aux_vol = getVolume(data);
-        if  (aux_vol !== false) {
+        if (aux_vol !== false) {
             myEmitter.emit('volume', aux_vol, 'aux');
             state.aux.mainLevel = aux_vol;
             console.log('Aux Volume: ' + aux_vol);
             return;
         }
     }
-    console.log('\t\t\t\tUnknown data: ' +  data);
+    console.log('\t\t\t\tUnknown data: ' + data);
 });
 
 function getVolume(data) {
     var vol = data.substr(2);
-    if  (/^[0-9]{3}$/.test(vol)) {
+    if (/^[0-9]{3}$/.test(vol)) {
         vol = vol.substring(0, 2);
         vol = parseFloat(vol);
         vol += 0.5;
@@ -136,23 +137,23 @@ function getVolume(data) {
     return false;
 }
 
-var marantzHost = process.env.MARANTZ_HOST || 'marantz';
+var marantzHost = '192.168.1.52' // process.env.MARANTZ_HOST || 'marantz';
 
 //TODO: add automatic reconnect logic
-connection.connect({host: marantzHost, shellPrompt: ''});
+connection.connect({ host: marantzHost, shellPrompt: '' });
 
-setTimeout(function() { connection.send('SI?\r'); }, 1000);
-setTimeout(function() { connection.send('ZM?\r'); }, 2000);
-setTimeout(function() { connection.send('MV?\r'); }, 3000);
-setTimeout(function() { connection.send('MU?\r'); }, 4000);
-setTimeout(function() { connection.send('Z2?\r'); }, 5000);
-setTimeout(function() { connection.send('Z2MU?\r'); }, 6000);
+setTimeout(function () { connection.send('SI?\r'); }, 1000);
+setTimeout(function () { connection.send('ZM?\r'); }, 2000);
+setTimeout(function () { connection.send('MV?\r'); }, 3000);
+setTimeout(function () { connection.send('MU?\r'); }, 4000);
+setTimeout(function () { connection.send('Z2?\r'); }, 5000);
+setTimeout(function () { connection.send('Z2MU?\r'); }, 6000);
 
-module.exports.getState = function() {
+module.exports.getState = function () {
     return state;
 };
 
-module.exports.setPower = function(device, isOn) {
+module.exports.setPower = function (device, isOn) {
     switch (device) {
         case 'main':
             if (isOn) {
@@ -172,7 +173,7 @@ module.exports.setPower = function(device, isOn) {
     return false;
 };
 
-module.exports.setMute = function(device, isOn) {
+module.exports.setMute = function (device, isOn) {
     switch (device) {
         case 'main':
             if (isOn) {
@@ -192,7 +193,7 @@ module.exports.setMute = function(device, isOn) {
     return false;
 };
 
-module.exports.volumeUp = function(device) {
+module.exports.volumeUp = function (device) {
     switch (device) {
         case 'main':
             connection.send('MVUP\r');
@@ -204,7 +205,7 @@ module.exports.volumeUp = function(device) {
     return false;
 };
 
-module.exports.volumeDown = function(device) {
+module.exports.volumeDown = function (device) {
     switch (device) {
         case 'main':
             connection.send('MVDOWN\r');
@@ -216,7 +217,7 @@ module.exports.volumeDown = function(device) {
     return false;
 };
 
-module.exports.setVolume = function(device, volume) {
+module.exports.setVolume = function (device, volume) {
     if (volume < 10) {
         volume = '0' + volume;
     }
@@ -231,16 +232,16 @@ module.exports.setVolume = function(device, volume) {
     return false;
 };
 
-module.exports.setSource = function(device, source) {
+module.exports.setSource = function (device, source) {
     var prefix = (device == 'main' ? 'SI' : 'Z2');
     switch (source) {
-        case 'AppleTV':
+        case 'PS4':
             connection.send(prefix + 'SAT/CBL\r');
             break;
-        case 'Mac Mini':
-            connection.send(prefix + 'DVD\r');
+        case 'Apple TV':
+            connection.send(prefix + 'GAME\r');
             break;
-        case 'KVM Switch':
+        case 'Switch':
             connection.send(prefix + 'BD\r');
             break;
         default:

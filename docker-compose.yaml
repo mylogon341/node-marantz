@@ -3,4 +3,4 @@ services:
   node-marantz:
     build: .
     environment:
-      - MARANTZ_HOST=10.10.10.15
+      - MARANTZ_HOST=192.168.1.52
